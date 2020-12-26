@@ -1,13 +1,17 @@
-# Dependencies
+# Dependencies for web scraping
 from bs4 import BeautifulSoup
+
+# Dependencies to visit web
+import requests
 import splinter 
 from splinter import Browser
-import requests
-import pymongo
 from webdriver_manager.chrome import ChromeDriverManager
+
+# Dependencies to interact with MongoDB database
+import pymongo
+
+# Other modules
 import json
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 import re
 import pandas as pd
 
@@ -37,8 +41,8 @@ def news_titles_description (url_1):
     paragraph = results.find('div', class_="rollover_description_inner")
     news_p = paragraph.text.strip()
 
-    return news_title
-    return news_p
+    return news_title, news_p
+
 
 def featured_img (url_2):
     
@@ -105,6 +109,7 @@ def mars_facts (url_3):
 
     return mars_fact_df
     
+
 def mars_hemispheres(url_4):
     html = requests.get(url_4)
     soup = BeautifulSoup(html.text, 'html.parser')
@@ -162,26 +167,40 @@ def mars_hemispheres(url_4):
     return hemisphere_image_urls
         
 
-
 def scrape():
 
     # Start running all scraping codes above
-    news_titles_description(url_1)
-    featured_img(url_2)
-    mars_facts (url_3)
-    mars_hemispheres(url_4)
+       
+    news_title_, news_p_ = news_titles_description (url_1)
+    featured_image_url_ = featured_img (url_2)
+    mars_fact_df_ = mars_facts (url_3)
+    hemisphere_image_urls_ = mars_hemispheres(url_4)
 
     # Create a dictionary that contains all scraped information
     results_dict = {
-                    "Latest News Title": news_title,
-                    "Latest News Paragraph": news_p,
-                    "Current Featured Image URL": featured_image_url,
-                    "Mars Facts": mars_fact_df,
-                    "Mars Hemispheres URLs": hemisphere_image_urls
+                    "latest_news": news_title_,
+                    "latest_news_paragraph": news_p_,
+                    "current_featured_image_url": featured_image_url_,
+                    "mars_facts": mars_fact_df_,
+                    "mars_hemispheres_urls": hemisphere_image_urls_
 
     }
 
     return results_dict
 
+# insert the results_dict into MongoDB database
+results_dict_ = scrape()
 
-scrape()
+# Use PyMongo to establish Mongo connection
+conn = "mongodb://localhost:27017"
+client = pymongo.MongoClient(conn)
+
+# Create a database and a collection within the database on the local MongoDB
+mydb = client.scrape_mars_db
+mycol = mydb.scrape_mars
+
+# Insert results_dict to collection mycol
+mycol.insert_one(results_dict_)
+
+print("Data Uploaded!")
+

@@ -1,48 +1,28 @@
-
+#!pip install Flask-PyMongo (this bridges Flask and PyMongo)
 
 # Create a route called "/scrape" that imports scrape_mars.py, and store the returned value in Mongo as a dictionary
 from flask import Flask, render_template
-import pymongo
-
+from Flask-PyMongo import pymongo
 
 app = Flask(__name__)
 
-def insert_into_mongo(): 
-    # Insert data into mongodb
+# setup mongo connection
+conn = "mongodb://localhost:27017"
+client = pymongo.MongoClient(conn)
 
-# Use PyMongo to establish Mongo connection
-mongo = PyMongo(app, uri="mongodb://localhost:27017/DATABASENAME") 
+# connect to mongodb, create db and collection
+db = client.scrape_mars_db
+mars_facts = db.scrape_mars
 
 # Route to render index.html template using data from Mongo
-@app.route("/")
-def home():
-
-    # Find one record of data from the mongo database
-    destination_data = mongo.db.collection.find_one()
-
-    # Return template and data
-    return render_template("index.html", vacation=destination_data)
-
-
-# Route that will trigger the scrape function
 @app.route("/scrape")
 def scrape():
 
-    # Run the scrape function
-    costa_data = scrape_costa.scrape_info()
+    # Find record of data from the mongo database and set it to a variable
+    mars_facts_var = list(mars_facts.find())
 
-    # Update the Mongo database using update and upsert=True
-    mongo.db.collection.update({}, costa_data, upsert=True)
-
-    # Redirect back to home page
-    return redirect("/")
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
-
-
+    # Return template and data
+    return render_template("index.html", mars_facts=mars_facts_var )
 
 if __name__ == "__main__":
     app.run(debug=True)
