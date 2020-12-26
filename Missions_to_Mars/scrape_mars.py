@@ -16,6 +16,7 @@ url_2 = 'https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars'
 url_3 = 'https://space-facts.com/mars/'
 url_4 = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
 
+
 def news_titles_description (url_1):
     
     # browser.visit(url_1)
@@ -36,14 +37,18 @@ def news_titles_description (url_1):
     paragraph = results.find('div', class_="rollover_description_inner")
     news_p = paragraph.text.strip()
 
+    return news_title
+    return news_p
+
 def featured_img (url_2):
     
-    # Use ChromeDriver to visit websites instead of get request method
     executable_path = {'executable_path': ChromeDriverManager().install()}
-    browser = Browser('chrome', **executable_path, headless=False)
+    browser =  Browser('chrome', **executable_path, headless=False) 
 
     # Navigate with browser.visit
     browser.visit(url_2)
+
+    # time.sleep(1)
 
     #Get html content of the visited page
     html = browser.html
@@ -56,6 +61,11 @@ def featured_img (url_2):
 
     base_url = 'https://www.jpl.nasa.gov'
     featured_image_url = base_url + '/' + image_url
+
+    browser.quit()
+
+    return featured_image_url
+
 
 def mars_facts (url_3):
     html = requests.get(url_3)
@@ -93,6 +103,8 @@ def mars_facts (url_3):
     # Import column1 and column2 into Pandas DataFrame
     mars_fact_df = pd.DataFrame(data, columns=['Parameter', 'Value']).set_index('Parameter')
 
+    return mars_fact_df
+    
 def mars_hemispheres(url_4):
     html = requests.get(url_4)
     soup = BeautifulSoup(html.text, 'html.parser')
@@ -146,15 +158,30 @@ def mars_hemispheres(url_4):
         
         # Append the merge dictionaries into a list
         hemisphere_image_urls.append(merge_dict)
+
+    return hemisphere_image_urls
         
 
 
-# def scrape():
+def scrape():
 
     # Start running all scraping codes above
-    # news_titles_description(url_1)
-    # featured_img(url_2)
-    # mars_facts (url_3)
-    # mars_hemispheres(url_4)
+    news_titles_description(url_1)
+    featured_img(url_2)
+    mars_facts (url_3)
+    mars_hemispheres(url_4)
 
     # Create a dictionary that contains all scraped information
+    results_dict = {
+                    "Latest News Title": news_title,
+                    "Latest News Paragraph": news_p,
+                    "Current Featured Image URL": featured_image_url,
+                    "Mars Facts": mars_fact_df,
+                    "Mars Hemispheres URLs": hemisphere_image_urls
+
+    }
+
+    return results_dict
+
+
+scrape()
