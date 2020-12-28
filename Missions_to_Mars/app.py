@@ -18,13 +18,11 @@ def index():
     # Find record of data from the mongo database and set it to a variable
     mars_facts_var = mongo.db.scrape_mars.find_one()
 
-    mars_facts_var_list = []
-
-    news_title = list(mars_facts_var.values())[1]
-    news_p = list(mars_facts_var.values())[2]
-    featured_img_url = list(mars_facts_var.values())[3]
-    mars_facts_table = list(mars_facts_var.values())[4]
-    mars_hemispheres_dict = list(mars_facts_var.values())[5]
+    news_title = mars_facts_var["latest_news"]
+    news_p = mars_facts_var["latest_news_paragraph"]
+    featured_img_url = mars_facts_var["current_featured_image_url"]
+    mars_facts_table = mars_facts_var["mars_facts"]
+    mars_hemispheres_dict = mars_facts_var["mars_hemispheres_urls"]
 
     # Return template and data
     return render_template("index.html",
@@ -43,4 +41,4 @@ def scrape():
     return redirect("/")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)

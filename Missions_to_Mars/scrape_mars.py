@@ -111,9 +111,9 @@ def mars_facts (url_3):
     data = list(zip(column1,column2))
 
     # Import column1 and column2 into Pandas DataFrame
-    mars_fact_df = pd.DataFrame(data, columns=['Parameter', 'Value']).set_index('Parameter')
+    mars_fact_df = pd.DataFrame(data, columns=['Parameter', 'Value'])
 
-    mars_fact_html = mars_fact_df.to_html(header=True, index=False)
+    mars_fact_html = mars_fact_df.to_html(header=True, justify='left', index=False)
 
     return mars_fact_html
     
