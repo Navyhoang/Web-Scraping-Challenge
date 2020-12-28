@@ -38,12 +38,12 @@ def news_titles_description (url_1):
     # Collect the latest News Title
     content = results.find('div', class_="content_page")
     
-    titles = content.find("div", class_='content_title')
-    news_title = titles.text.strip()
+    titles = content.find_all("div", class_='content_title')
+    news_title = titles[0].text.strip()
 
     # Collect the paragraph texts
-    papagraphs = content.find("div", class_='article_teaser_body')
-    news_p = papagraphs.text
+    papagraphs = content.find_all("div", class_='article_teaser_body')
+    news_p = papagraphs[0].text
           
     return news_title, news_p
 
