@@ -29,7 +29,7 @@
     {% block body %}
 
         <div class="container">
-            <h1> {{news_title}} </h1>
+            <h4> {{news_title}} </h4>
             <p> {{news_p}} </p>
         </div>
 
@@ -42,7 +42,7 @@
 
                 <div class= "col-lg-6 col-md-12 col-sm-12">
                     <h1 class="text-left text-info">Mars Facts</h1>
-                    <article> {{mars_facts_table}} </article>
+                    {{mars_facts_table}}
                 </div>
             </div>
         </div>
@@ -52,38 +52,3 @@
 </body>
 
 </html>
-
-        <!-- {% for key, value in mars_facts_var.mars_hemispheres_urls.item() %}
-       
-        <div class ="container">
-            <div class= "row">
-                <div class= "col-lg-6 col-md-12 col-sm-12">
-                    <h1 class="text-left text-info">{{value[0]}}</h1>
-                    <img class="img-fluid w-xs-120p" src= "{{value[1]}}" alt="{{value[0]}}">
-                </div>
-
-                <div class= "col-lg-6 col-md-12 col-sm-12">
-                    <h1 class="text-left text-info">{{value[0]}}</h1>
-                    <img class="img-fluid w-xs-120p" src= "{{value[1]}}" alt="{{value[0]}}">
-                </div>
-            </div>
-
-            <div class= "row">
-                <div class= "col-lg-6 col-md-12 col-sm-12">
-                    <h1 class="text-left text-info">{{value[0]}}</h1>
-                    <img class="img-fluid w-xs-120p" src= "{{value[1]}}" alt="{{value[0]}}">
-                </div>
-
-                <div class= "col-lg-6 col-md-12 col-sm-12">
-                    <h1 class="text-left text-info">{{value[0]}}</h1>
-                    <img class="img-fluid w-xs-120p" src= "{{value[1]}}" alt="{{value[0]}}">
-                </div>
-            </div>
-        </div> -->
-
-
-
-
-    <!-- </div> -->
-
-
