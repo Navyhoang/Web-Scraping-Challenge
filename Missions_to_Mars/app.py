@@ -35,7 +35,7 @@ def index():
 @app.route("/scrape")
 def scrape():
     scrape_data= scrape_mars.scrape()
-    mongo.db.mars_facts.update({}, scrape_data, upsert=True)
+    mongo.db.scrape_mars.update({}, scrape_data, upsert=True)
     
     # Redirect back to homepage
     return redirect("/")

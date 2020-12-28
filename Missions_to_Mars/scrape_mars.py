@@ -24,23 +24,27 @@ url_4 = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=t
 
 def news_titles_description (url_1):
     
-    # browser.visit(url_1)
-    # html = browser.html
-    # soup = BeautifulSoup(html, 'html.parser')
+    executable_path = {'executable_path': ChromeDriverManager().install()}
+    browser =  Browser('chrome', **executable_path, headless=False) 
 
-    html = requests.get(url_1)
-    soup = BeautifulSoup(html.text, 'html.parser')
+    browser.visit(url_1)
+    html = browser.html
 
+    # Create BeautifulSoup object; parse with 'html.parser'
+    soup = BeautifulSoup(html, 'html.parser')
+    
     results = soup.find()
 
     # Collect the latest News Title
-    title = results.find('div', class_="content_title")
-    news_title = title.a.text.strip()
-        
-    # Get paragraph texts
-    paragraph = results.find('div', class_="rollover_description_inner")
-    news_p = paragraph.text.strip()
+    content = results.find('div', class_="content_page")
+    
+    titles = content.find("div", class_='content_title')
+    news_title = titles.text.strip()
 
+    # Collect the paragraph texts
+    papagraphs = content.find("div", class_='article_teaser_body')
+    news_p = papagraphs.text
+          
     return news_title, news_p
 
 def featured_img (url_2):
@@ -84,7 +88,6 @@ def mars_facts (url_3):
 
     # Scrape the table from the website
     table = results.find('table', class_="tablepress tablepress-id-p-mars", id="tablepress-p-mars")
-    trs = table.find_all("tr")
     tds_column1 = table.find_all('td', class_='column-1')
     tds_column2 = table.find_all('td', class_='column-2')
 
