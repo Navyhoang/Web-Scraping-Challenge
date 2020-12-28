@@ -14,6 +14,7 @@ import pymongo
 import json
 import re
 import pandas as pd
+import time
 
 url_1 = 'https://mars.nasa.gov/news/?page=0&per_page=40&order=publish_date+desc%2Ccreated_at+desc&search=&category=19%2C165%2C184%2C204&blank_scope=Latest'
 url_2 = 'https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars'
@@ -32,7 +33,6 @@ def news_titles_description (url_1):
 
     results = soup.find()
 
-    # print(results.prettify())
     # Collect the latest News Title
     title = results.find('div', class_="content_title")
     news_title = title.a.text.strip()
@@ -43,7 +43,6 @@ def news_titles_description (url_1):
 
     return news_title, news_p
 
-
 def featured_img (url_2):
     
     executable_path = {'executable_path': ChromeDriverManager().install()}
@@ -52,7 +51,7 @@ def featured_img (url_2):
     # Navigate with browser.visit
     browser.visit(url_2)
 
-    # time.sleep(1)
+    time.sleep(1)
 
     #Get html content of the visited page
     html = browser.html
@@ -60,16 +59,23 @@ def featured_img (url_2):
     # Start scraping using BS
     soup = BeautifulSoup(html, 'html.parser')
 
-    article = soup.find('article')['style'].split(' ')[1]
-    image_url =re.search(r'/(.*?)\'', article).group(1)
+    # Click on the "Full Image" button
+    browser.find_by_id("full_image").click()
+
+    # Click on the "More Info" button
+    browser.find_by_text("more info     ").click()
+
+    # Start scraping the full_size image
+    html = browser.html
+    soup = BeautifulSoup(html, 'html.parser')
+    featured_img = soup.find("img", class_='main_image')['src']
 
     base_url = 'https://www.jpl.nasa.gov'
-    featured_image_url = base_url + '/' + image_url
+    featured_image_url = base_url + featured_img
 
     browser.quit()
 
     return featured_image_url
-
 
 def mars_facts (url_3):
     html = requests.get(url_3)
@@ -107,16 +113,16 @@ def mars_facts (url_3):
     # Import column1 and column2 into Pandas DataFrame
     mars_fact_df = pd.DataFrame(data, columns=['Parameter', 'Value']).set_index('Parameter')
 
-    return mars_fact_df
-    
+    mars_fact_html = mars_fact_df.to_html(header=True, index=False)
 
+    return mars_fact_html
+    
 def mars_hemispheres(url_4):
     html = requests.get(url_4)
     soup = BeautifulSoup(html.text, 'html.parser')
     results = soup.find_all('a', class_='itemLink product-item')
 
     # Extract all 4 links/href from the results
-
     titles = []
     img_urls = []
     hemisphere_image_urls = []
@@ -141,8 +147,7 @@ def mars_hemispheres(url_4):
         
         keys_1 = ['title', 'title', 'title', 'title']
         keys_2 = ['img_url', 'img_url', 'img_url', 'img_url']
-
-        
+      
         # Create 1st dictionary
         for key in keys_1:
             for value in titles:
@@ -166,11 +171,9 @@ def mars_hemispheres(url_4):
 
     return hemisphere_image_urls
         
-
 def scrape():
 
-    # Start running all scraping codes above
-       
+    # Start running all scraping codes above     
     news_title_, news_p_ = news_titles_description (url_1)
     featured_image_url_ = featured_img (url_2)
     mars_fact_df_ = mars_facts (url_3)
@@ -184,23 +187,26 @@ def scrape():
                     "mars_facts": mars_fact_df_,
                     "mars_hemispheres_urls": hemisphere_image_urls_
 
-    }
+                    }
 
     return results_dict
 
-# insert the results_dict into MongoDB database
-results_dict_ = scrape()
+def insert_into_mongo():
 
-# Use PyMongo to establish Mongo connection
-conn = "mongodb://localhost:27017"
-client = pymongo.MongoClient(conn)
+    # # insert the results_dict into MongoDB database
+    results_dict_ = scrape()
 
-# Create a database and a collection within the database on the local MongoDB
-mydb = client.scrape_mars_db
-mycol = mydb.scrape_mars
+    # Use PyMongo to establish Mongo connection
+    conn = "mongodb://localhost:27017"
+    client = pymongo.MongoClient(conn)
 
-# Insert results_dict to collection mycol
-mycol.insert_one(results_dict_)
+    # Create a database and a collection within the database on the local MongoDB
+    mydb = client.scrape_mars_db
+    mycol = mydb.scrape_mars
 
-print("Data Uploaded!")
+    # Insert results_dict to collection mycol
+    mycol.insert_one(results_dict_)
+
+
+insert_into_mongo()
 
